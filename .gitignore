@@ -15,10 +15,10 @@
 
 
 # Custom ignores (Unity Assets - large packages)
-Assets/Synty/
-Assets/uMotionEditor/
-Assets/uMotionExamples/
-Assets/StarterAssets/
+# Assets/Synty/
+# Assets/uMotionEditor/
+# Assets/uMotionExamples/
+# Assets/StarterAssets/
 
 
 
