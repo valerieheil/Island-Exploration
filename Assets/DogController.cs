@@ -1,11 +1,10 @@
-// using System.Diagnostics;
 using UnityEngine;
 
 public class DogController : MonoBehaviour
 {
     [Header("Movement")]
-    public float walkSpeed = 2f;
-    public float runSpeed = 5f;
+    public float walkSpeed = 100f;
+    public float runSpeed = 200f;
     public float crouchSpeed = 1f;
     public float jumpForce = 5f;
 
@@ -16,6 +15,14 @@ public class DogController : MonoBehaviour
     public float gravity = -9.81f;
     private float verticalVelocity;
 
+    [Header("Mouse Look")]
+    public float mouseSensitivity = 200f;
+    public float minPitch = -40f;
+    public float maxPitch = 60f;
+
+    private float yaw;
+    private float pitch;
+
     [Header("Camera")]
     public Transform cameraTransform;
 
@@ -23,7 +30,6 @@ public class DogController : MonoBehaviour
     public Animator animator;
 
     private CharacterController controller;
-
     private Vector3 moveDirection;
 
     private bool isSwimming = false;
@@ -39,39 +45,52 @@ public class DogController : MonoBehaviour
             cameraTransform = Camera.main.transform;
         }
 
+        yaw = cameraTransform.eulerAngles.y;
+        pitch = cameraTransform.eulerAngles.x;
+
         Cursor.lockState = CursorLockMode.Locked;
+        Cursor.visible = false;
     }
 
     void Update()
     {
+        HandleMouseLook();
         HandleMovement();
         HandleActions();
         UpdateAnimator();
+    }
+
+    void HandleMouseLook()
+    {
+        float mouseX = Input.GetAxis("Mouse X") * mouseSensitivity * Time.deltaTime;
+        float mouseY = Input.GetAxis("Mouse Y") * mouseSensitivity * Time.deltaTime;
+
+        yaw += mouseX;
+        pitch -= mouseY;
+
+        pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
+
+        cameraTransform.rotation = Quaternion.Euler(pitch, yaw, 0f);
     }
 
     void HandleMovement()
     {
         if (isDigging) return;
 
-        // INPUT
         float x = Input.GetAxis("Horizontal");
         float z = Input.GetAxis("Vertical");
 
-        // CAMERA RELATIVE MOVEMENT
         Vector3 forward = cameraTransform.forward;
         Vector3 right = cameraTransform.right;
 
-        // Ignore camera vertical angle
         forward.y = 0f;
         right.y = 0f;
 
         forward.Normalize();
         right.Normalize();
 
-        // Movement relative to camera
         moveDirection = (forward * z + right * x).normalized;
 
-        // SPEED
         bool running = Input.GetKey(KeyCode.LeftShift);
 
         float currentSpeed = walkSpeed;
@@ -85,14 +104,12 @@ public class DogController : MonoBehaviour
             currentSpeed = runSpeed;
         }
 
-        // Swimming slows movement
         if (isSwimming)
         {
             currentSpeed *= 0.6f;
         }
 
-
-        // ROTATE DOG TOWARD MOVEMENT
+        // Rotate dog toward movement direction
         if (moveDirection.magnitude > 0.1f)
         {
             Quaternion targetRotation =
@@ -105,13 +122,13 @@ public class DogController : MonoBehaviour
             );
         }
 
-        // GROUND CHECK
+        // Ground check
         if (controller.isGrounded && verticalVelocity < 0)
         {
             verticalVelocity = -2f;
         }
 
-        // JUMP
+        // Jump
         if (Input.GetKeyDown(KeyCode.Space) &&
             controller.isGrounded &&
             !isSwimming)
@@ -119,22 +136,26 @@ public class DogController : MonoBehaviour
             verticalVelocity =
                 Mathf.Sqrt(jumpForce * -2f * gravity);
 
-            animator.SetTrigger("Jump");
+            if (animator != null)
+            {
+                animator.SetTrigger("Jump");
+            }
         }
 
+        // Celebrate
         if (Input.GetKeyDown(KeyCode.C) &&
             controller.isGrounded &&
             !isSwimming)
         {
-        
-
-            animator.SetTrigger("Celebrate");
+            if (animator != null)
+            {
+                animator.SetTrigger("Celebrate");
+            }
         }
 
-        // GRAVITY
+        // Gravity
         verticalVelocity += gravity * Time.deltaTime;
 
-        // FINAL MOVEMENT
         Vector3 velocity = moveDirection * currentSpeed;
         velocity.y = verticalVelocity;
 
@@ -143,22 +164,31 @@ public class DogController : MonoBehaviour
 
     void HandleActions()
     {
-        // Digging
         if (Input.GetKeyDown(KeyCode.F))
         {
             isDigging = true;
-            animator.SetBool("Digging", true);
+
+            if (animator != null)
+            {
+                animator.SetBool("Digging", true);
+            }
         }
 
         if (Input.GetKeyUp(KeyCode.F))
         {
             isDigging = false;
-            animator.SetBool("Digging", false);
+
+            if (animator != null)
+            {
+                animator.SetBool("Digging", false);
+            }
         }
     }
 
     void UpdateAnimator()
     {
+        if (animator == null) return;
+
         float speed = moveDirection.magnitude;
 
         if (Input.GetKey(KeyCode.LeftShift))
@@ -167,19 +197,15 @@ public class DogController : MonoBehaviour
         }
 
         animator.SetFloat("Speed", speed);
-
         animator.SetBool("Swimming", isSwimming);
         animator.SetBool("Crouching", isCrouching);
     }
 
     private void OnTriggerEnter(Collider other)
     {
-        
-
         if (other.CompareTag("Water"))
-        {   
+        {
             Debug.Log("Swimming dog");
-        
             isSwimming = true;
         }
     }
