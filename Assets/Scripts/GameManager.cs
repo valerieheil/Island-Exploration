@@ -26,7 +26,7 @@ public class GameManager : MonoBehaviour
 
     static readonly string[] Praises =
     {
-        "Good boy! 🦴", "Woof! Found one!",
+        "Good boy!", "Woof! Found one!",
         "Nice sniff!", "Buried treasure!",
         "Who's a good dog?!"
     };
@@ -53,6 +53,7 @@ public class GameManager : MonoBehaviour
     /// <summary>Called by CollectibleBone after a successful dig.</summary>
     public void OnBoneCollected()
     {
+        Debug.Log("Bone collected! Total now: " + (CollectedBones + 1));
         if (GameWon) return;
 
         CollectedBones++;

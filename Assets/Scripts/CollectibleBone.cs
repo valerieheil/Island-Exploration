@@ -68,10 +68,17 @@ public class CollectibleBone : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
+        Debug.Log("Bone trigger entered by " + other.name);
         if (!other.CompareTag("Player")) return;
         isNearby = true;
         // Persistent hint (no duration) — cleared in OnTriggerExit or when collected
-        ui?.ShowHint("Press F to dig!", -1f);
+   //     ui?.ShowHint("Press F to dig!", -1f);
+
+        // TODO: temporary instant collection   
+        ui?.PlayCollectFX();
+        GameManager.Instance?.OnBoneCollected();
+
+        Destroy(gameObject);
     }
 
     void OnTriggerExit(Collider other)

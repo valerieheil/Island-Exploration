@@ -34,7 +34,7 @@ public class DogController : MonoBehaviour
 
     private bool isSwimming = false;
     private bool isDigging = false;
-    private bool isCrouching = false;
+  //  private bool isCrouching = false;
 
     [Header("Ground Alignment")]
     private Vector3 groundNormal = Vector3.up;
@@ -101,11 +101,11 @@ public class DogController : MonoBehaviour
 
         float currentSpeed = walkSpeed;
 
-        if (isCrouching)
+      /*  if (isCrouching)
         {
             currentSpeed = crouchSpeed;
         }
-        else if (running)
+        else */ if (running)
         {
             currentSpeed = runSpeed;
         }
@@ -213,7 +213,7 @@ public class DogController : MonoBehaviour
 
         animator.SetFloat("Speed", speed);
         animator.SetBool("Swimming", isSwimming);
-        animator.SetBool("Crouching", isCrouching);
+      // TODO animator.SetBool("Crouching", isCrouching);
     }
 
     private void OnTriggerEnter(Collider other)

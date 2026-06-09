@@ -79,7 +79,8 @@ public class UIManager : MonoBehaviour
 
     public void PlayCollectFX()
     {
-        collectSFX?.Play();
+       // collectSFX?.Play();
+        collectSFX? .PlayOneShot(collectSFX.clip);
         if (collectFlashImage) StartCoroutine(FlashRoutine());
     }
 
@@ -98,7 +99,7 @@ public class UIManager : MonoBehaviour
 
     public void ShowAllFoundBanner(bool show)
     {
-        if (allFoundBanner) allFoundBanner.SetActive(show);
+        //if (allFoundBanner) allFoundBanner.SetActive(show);
     }
 
     public void ShowWinScreen()
