@@ -36,6 +36,10 @@ public class DogController : MonoBehaviour
     private bool isDigging = false;
     private bool isCrouching = false;
 
+    [Header("Ground Alignment")]
+    private Vector3 groundNormal = Vector3.up;
+    [SerializeField] float alignSpeed = 5f;
+    [SerializeField] float maxSlopeTilt = 60f;
     void Start()
     {
         controller = GetComponent<CharacterController>();
@@ -55,9 +59,11 @@ public class DogController : MonoBehaviour
     void Update()
     {
         HandleMouseLook();
+        AlignToGround();
         HandleMovement();
         HandleActions();
         UpdateAnimator();
+
     }
 
     void HandleMouseLook()
@@ -112,8 +118,17 @@ public class DogController : MonoBehaviour
         // Rotate dog toward movement direction
         if (moveDirection.magnitude > 0.1f)
         {
+            Vector3 alignedForward =
+                Vector3.ProjectOnPlane(
+                    moveDirection,
+                    groundNormal
+                ).normalized;
+
             Quaternion targetRotation =
-                Quaternion.LookRotation(moveDirection);
+                Quaternion.LookRotation(
+                    alignedForward,
+                    groundNormal
+                );
 
             transform.rotation = Quaternion.Slerp(
                 transform.rotation,
@@ -215,6 +230,33 @@ public class DogController : MonoBehaviour
         if (other.CompareTag("Water"))
         {
             isSwimming = false;
+        }
+    }
+
+    void AlignToGround()
+    {
+        Vector3 origin = transform.position + Vector3.up;
+
+        Debug.DrawRay(origin, Vector3.down * 5f, Color.red);
+
+        RaycastHit hit;
+
+        if (Physics.Raycast(origin, Vector3.down, out hit, 10f))
+        {
+            float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
+
+            groundNormal = hit.normal;
+                Debug.DrawRay(
+                hit.point,
+                hit.normal * 2f,
+                Color.green
+            );
+
+
+        }
+        else
+        {
+            groundNormal = Vector3.up;
         }
     }
 }
