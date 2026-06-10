@@ -10,6 +10,7 @@ using System.Collections;
 /// Attach to the same GameObject as GameManager, or a separate one.
 /// Wire every public field in the Inspector.
 /// </summary>
+[RequireComponent(typeof(AudioSource))]
 public class UIManager : MonoBehaviour
 {
     // ── Inspector fields ──────────────────────────────────────────────────────
@@ -32,16 +33,24 @@ public class UIManager : MonoBehaviour
     public Image collectFlashImage;
 
     [Header("Audio")]
-    public AudioSource collectSFX;   // short bark / chime
+    public AudioClip collectSFX;   // short bark / chimes
     public AudioSource winSFX;       // victory howl
     public AudioSource ambientLoop;  // ocean / wind (looping)
 
     // ── Private ───────────────────────────────────────────────────────────────
     Coroutine hintRoutine;
+    [Tooltip("Optional AudioSource for playing UI SFX; assign in Inspector")]
+    public AudioSource audioSource;
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
     void Start()
     {
+        if (audioSource == null)
+            audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+        // Ensure the UI AudioSource won't play automatically if it has a clip
+        audioSource.playOnAwake = false;
+        audioSource.loop = false;
+        audioSource.clip = null;
         if (ambientLoop != null && !ambientLoop.isPlaying) ambientLoop.Play();
         if (winScreen)      winScreen.SetActive(false);
         if (allFoundBanner) allFoundBanner.SetActive(false);
@@ -79,8 +88,13 @@ public class UIManager : MonoBehaviour
 
     public void PlayCollectFX()
     {
-       // collectSFX?.Play();
-        collectSFX? .PlayOneShot(collectSFX.clip);
+        if (collectSFX != null)
+        {
+            if (audioSource == null)
+                audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+            if (audioSource != null)
+                audioSource.PlayOneShot(collectSFX);
+        }
         if (collectFlashImage) StartCoroutine(FlashRoutine());
     }
 
