@@ -6,7 +6,7 @@ public class DogController : MonoBehaviour
     public float walkSpeed = 100f;
     public float runSpeed = 200f;
     public float crouchSpeed = 1f;
-    public float jumpForce = 5f;
+    public float jumpForce = 6f;
 
     [Header("Rotation")]
     public float rotationSpeed = 10f;
@@ -63,6 +63,7 @@ public class DogController : MonoBehaviour
         HandleMovement();
         HandleActions();
         UpdateAnimator();
+        LimitCamera();
 
     }
 
@@ -77,6 +78,23 @@ public class DogController : MonoBehaviour
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
 
         cameraTransform.rotation = Quaternion.Euler(pitch, yaw, 0f);
+    }
+
+    void LimitCamera()
+    {
+        Vector3 desiredPosition = transform.position - cameraTransform.forward * 5f;
+        Vector3 dir = (desiredPosition - transform.position).normalized;
+        RaycastHit hit;
+
+        if (Physics.SphereCast(transform.position, 0.3f, dir, out hit, 5f))
+        {
+            cameraTransform.position = hit.point - dir * 0.3f;
+        }
+        else
+        {
+            cameraTransform.position = desiredPosition;
+        }
+
     }
 
     void HandleMovement()
