@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 
 /// <summary>
 /// Central game controller — singleton.
@@ -65,7 +66,7 @@ public class GameManager : MonoBehaviour
         if (CollectedBones >= totalBones)
         {
             uiManager?.ShowAllFoundBanner(true);
-            uiManager?.ShowHint("All bones found! 🏠 Run home!", 6f);
+            uiManager?.ShowHint("All bones found! Run home!", 6f);
         }
     }
 
@@ -85,5 +86,14 @@ public class GameManager : MonoBehaviour
         GameWon = true;
         dogAnimHelper?.TriggerCelebrate();
         uiManager?.ShowWinScreen();
+        StartCoroutine(ExitGameAfterDelay(3f));
+    }
+
+    /// <summary>Wait a bit, then exit the game mode.</summary>
+    private IEnumerator ExitGameAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        Time.timeScale = 0f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 }
