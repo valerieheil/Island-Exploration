@@ -32,10 +32,11 @@ public class UIManager : MonoBehaviour
     [Tooltip("Full-screen Image — set Color alpha to 0 in Inspector")]
     public Image collectFlashImage;
 
-    [Header("Audio")]
-    public AudioClip collectSFX;   // short bark / chimes
-    public AudioSource winSFX;       // victory howl
-    public AudioSource ambientLoop;  // ocean / wind (looping)
+    [Header("Audio Clips")]
+    public AudioClip collectClip;
+    public AudioClip winClip;
+    public AudioClip ambientClip;
+
 
     // ── Private ───────────────────────────────────────────────────────────────
     Coroutine hintRoutine;
@@ -43,21 +44,26 @@ public class UIManager : MonoBehaviour
     public AudioSource audioSource;
 
     // ── Unity lifecycle ───────────────────────────────────────────────────────
-    void Start()
+   void Start()
+{
+    if (audioSource == null)
+        audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
+
+    audioSource.playOnAwake = false;
+    audioSource.loop = false;
+
+    if (ambientClip != null)
     {
-        if (audioSource == null)
-            audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
-        // Ensure the UI AudioSource won't play automatically if it has a clip
-        audioSource.playOnAwake = false;
-        audioSource.loop = false;
-        audioSource.clip = null;
-        if (ambientLoop != null && !ambientLoop.isPlaying) ambientLoop.Play();
-        if (winScreen)      winScreen.SetActive(false);
-        if (allFoundBanner) allFoundBanner.SetActive(false);
-        if (hintText)       hintText.text = "";
-        if (collectFlashImage) collectFlashImage.color = new Color(1, 1, 1, 0);
+        audioSource.clip = ambientClip;
+        audioSource.loop = true;
+        audioSource.Play();
     }
 
+    if (winScreen) winScreen.SetActive(false);
+    if (allFoundBanner) allFoundBanner.SetActive(false);
+    if (hintText) hintText.text = "";
+    if (collectFlashImage) collectFlashImage.color = new Color(1, 1, 1, 0);
+}
     // ── Public API ────────────────────────────────────────────────────────────
 
     public void UpdateCounter(int current, int total)
@@ -87,16 +93,13 @@ public class UIManager : MonoBehaviour
     }
 
     public void PlayCollectFX()
-    {
-        if (collectSFX != null)
-        {
-            if (audioSource == null)
-                audioSource = GetComponent<AudioSource>() ?? gameObject.AddComponent<AudioSource>();
-            if (audioSource != null)
-                audioSource.PlayOneShot(collectSFX);
-        }
-        if (collectFlashImage) StartCoroutine(FlashRoutine());
-    }
+{
+    if (collectClip != null && audioSource != null)
+        audioSource.PlayOneShot(collectClip);
+
+    if (collectFlashImage)
+        StartCoroutine(FlashRoutine());
+}
 
     IEnumerator FlashRoutine()
     {
@@ -116,11 +119,16 @@ public class UIManager : MonoBehaviour
         //if (allFoundBanner) allFoundBanner.SetActive(show);
     }
 
-    public void ShowWinScreen()
-    {
-        winSFX?.Play();
-        if (winScreen) winScreen.SetActive(true);
-        Cursor.lockState = CursorLockMode.None;
-        Cursor.visible   = true;
-    }
+  public void ShowWinScreen()
+{
+    if (winClip != null && audioSource != null)
+        audioSource.PlayOneShot(winClip);
+
+    if (winScreen) winScreen.SetActive(true);
+
+    Cursor.lockState = CursorLockMode.None;
+    Cursor.visible = true;
+
+    Time.timeScale = 0f;
+}
 }

@@ -1,3 +1,4 @@
+
 using UnityEngine;
 
 public class DogController : MonoBehaviour
@@ -19,12 +20,13 @@ public class DogController : MonoBehaviour
     public float mouseSensitivity = 200f;
     public float minPitch = -40f;
     public float maxPitch = 60f;
-
+  
     private float yaw;
     private float pitch;
 
     [Header("Camera")]
     public Transform cameraTransform;
+    LayerMask cameraCollisionMask;
 
     [Header("Animator")]
     public Animator animator;
@@ -34,7 +36,7 @@ public class DogController : MonoBehaviour
 
     private bool isSwimming = false;
     private bool isDigging = false;
-  //  private bool isCrouching = false;
+    //  private bool isCrouching = false;
 
     [Header("Ground Alignment")]
     private Vector3 groundNormal = Vector3.up;
@@ -63,7 +65,7 @@ public class DogController : MonoBehaviour
         HandleMovement();
         HandleActions();
         UpdateAnimator();
-        LimitCamera();
+        // LimitCamera();
 
     }
 
@@ -74,28 +76,40 @@ public class DogController : MonoBehaviour
 
         yaw += mouseX;
         pitch -= mouseY;
-
+  
         pitch = Mathf.Clamp(pitch, minPitch, maxPitch);
-
         cameraTransform.rotation = Quaternion.Euler(pitch, yaw, 0f);
     }
 
-    void LimitCamera()
-    {
-        Vector3 desiredPosition = transform.position - cameraTransform.forward * 5f;
-        Vector3 dir = (desiredPosition - transform.position).normalized;
-        RaycastHit hit;
+    // void LimitCamera()
+    // {
+    //     int mask = ~LayerMask.GetMask("Player");
+    //     Vector3 desiredPosition = transform.position - cameraTransform.forward * 5f;
+    //     Vector3 dir = (desiredPosition - transform.position).normalized;
+    //     RaycastHit hit;
+     
+    //     if (Physics.SphereCast(
+    //         transform.position,
+    //         0.3f,
+    //         dir,
+    //         out hit,
+    //         5f,
+    //         mask))
+    //     {
+    //         Debug.Log("Hit: " + hit.collider.name);
 
-        if (Physics.SphereCast(transform.position, 0.3f, dir, out hit, 5f))
-        {
-            cameraTransform.position = hit.point - dir * 0.3f;
-        }
-        else
-        {
-            cameraTransform.position = desiredPosition;
-        }
+    //         cameraTransform.position =
+    //             hit.point - dir ;
+    //             Debug.Log("Camera Pos: " + cameraTransform.position);
+    //             Debug.Log(hit.collider.name);
+    //             Debug.Log(hit.distance);
+    //     }
+    //     else
+    //     {
+    //         cameraTransform.position = desiredPosition;
+    //     }
 
-    }
+    // }
 
     void HandleMovement()
     {
@@ -119,11 +133,12 @@ public class DogController : MonoBehaviour
 
         float currentSpeed = walkSpeed;
 
-      /*  if (isCrouching)
-        {
-            currentSpeed = crouchSpeed;
-        }
-        else */ if (running)
+        /*  if (isCrouching)
+          {
+              currentSpeed = crouchSpeed;
+          }
+          else */
+        if (running)
         {
             currentSpeed = runSpeed;
         }
@@ -231,7 +246,7 @@ public class DogController : MonoBehaviour
 
         animator.SetFloat("Speed", speed);
         animator.SetBool("Swimming", isSwimming);
-      // TODO animator.SetBool("Crouching", isCrouching);
+        // TODO animator.SetBool("Crouching", isCrouching);
     }
 
     private void OnTriggerEnter(Collider other)
@@ -264,11 +279,11 @@ public class DogController : MonoBehaviour
             float slopeAngle = Vector3.Angle(hit.normal, Vector3.up);
 
             groundNormal = hit.normal;
-                Debug.DrawRay(
-                hit.point,
-                hit.normal * 2f,
-                Color.green
-            );
+        //     Debug.DrawRay(
+        //     hit.point,
+        //     hit.normal * 2f,
+        //     Color.green
+        // );
 
 
         }

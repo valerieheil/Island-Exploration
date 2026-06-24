@@ -74,7 +74,6 @@ public class GameManager : MonoBehaviour
     public void OnGoalReached()
     {
         if (GameWon) return;
-
         int remaining = totalBones - CollectedBones;
         if (remaining > 0)
         {
@@ -92,8 +91,8 @@ public class GameManager : MonoBehaviour
     /// <summary>Wait a bit, then exit the game mode.</summary>
     private IEnumerator ExitGameAfterDelay(float delay)
     {
-        yield return new WaitForSeconds(delay);
-        Time.timeScale = 0f;
-        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        yield return new WaitForSecondsRealtime(delay);
+        Time.timeScale = 1f;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }
