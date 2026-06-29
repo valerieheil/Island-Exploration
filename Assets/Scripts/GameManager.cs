@@ -66,7 +66,7 @@ public class GameManager : MonoBehaviour
         if (CollectedBones >= totalBones)
         {
             uiManager?.ShowAllFoundBanner(true);
-            uiManager?.ShowHint("All bones found! Run home!", 6f);
+            uiManager?.ShowHint("All bones found! Run home!", 3f);
         }
     }
 
