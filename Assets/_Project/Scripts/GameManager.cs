@@ -46,7 +46,13 @@ public class GameManager : MonoBehaviour
         if (dogAnimHelper == null) dogAnimHelper = FindFirstObjectByType<DogAnimationHelper>();
 
         uiManager?.UpdateCounter(CollectedBones, totalBones);
-        uiManager?.ShowHint("WASD = move  |  SPACE = jump  |  F near a bone = dig", 5f);
+        StartCoroutine(ShowStartupHint());
+    }
+
+    private IEnumerator ShowStartupHint()
+    {
+        yield return new WaitForEndOfFrame();  // Warte, bis UI voll initialisiert ist
+        uiManager?.ShowHint("WASD = move  |  SHIFT = run  |  SPACE = jump  |  F near a bone = dig", 5f);
     }
 
     // ── Public API ────────────────────────────────────────────────────────────

@@ -86,6 +86,12 @@ public class UIManager : MonoBehaviour
             hintRoutine = StartCoroutine(ClearHintAfter(duration));
     }
 
+    public void HideHint()
+    {
+        if (hintRoutine != null) StopCoroutine(hintRoutine);
+        if (hintText) hintText.text = "";
+    }
+
     IEnumerator ClearHintAfter(float t)
     {
         yield return new WaitForSeconds(t);

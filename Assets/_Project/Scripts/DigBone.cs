@@ -54,6 +54,7 @@ public class DigBone : MonoBehaviour
         if (other.CompareTag("Player"))
         {
             playerNearby = false;
+            ui?.HideHint();
         }
     }
 }
